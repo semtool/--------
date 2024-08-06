@@ -1,20 +1,25 @@
 using System.Collections;
 using UnityEngine;
+using System;
+
+[RequireComponent(typeof(Renderer))]
 
 public class Cube : MonoBehaviour
 {
-    private Spawner _spawner;
+    private static float _minCoordinateOfPosition = -5f;
+    private static float _maxCoordinateOfPosition = 5f;
+    private static float _maxTopCoordinateOfPosition = 15;
+
     private Renderer _color;
+    private string _selfTag = "Cube";
     private float _minTimeOfLife = 2f;
     private float _maxTimeOfLife = 5f;
-    private float _minCoordinateOfPosition = -5f;
-    private float _maxCoordinateOfPosition = -10f;
-    private float _maxTopCoordinateOfPosition = 15f;
+
+    public event Action<Cube> LifeIsFinished;
 
     public void Awake()
     {
         _color = gameObject.GetComponent<Renderer>();
-        _spawner = GameObject.FindGameObjectWithTag("Spawn").GetComponent<Spawner>();
     }
 
     public Vector3 GetCoordinateOfAppearance()
@@ -27,9 +32,9 @@ public class Cube : MonoBehaviour
         _color.material.color = Color.black;
     }
 
-    private float GetRandomPosition()
+    private  float GetRandomPosition()
     {
-        return Random.Range(_minCoordinateOfPosition, _maxCoordinateOfPosition);
+        return UnityEngine.Random.Range(_minCoordinateOfPosition, _maxCoordinateOfPosition);
     }
 
     private IEnumerator Live()
@@ -38,18 +43,21 @@ public class Cube : MonoBehaviour
 
         yield return wait;
 
-        _spawner.ObjectPool.Release(gameObject);
+        LifeIsFinished?.Invoke(this);
     }
 
     private float GetRandomTimeOfLife()
     {
-        return Random.Range(_minTimeOfLife, _maxTimeOfLife);
+        return UnityEngine.Random.Range(_minTimeOfLife, _maxTimeOfLife);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        ChangeSelfColor();
+        if (collision.gameObject.tag != _selfTag)
+        {
+            ChangeSelfColor();
 
-        StartCoroutine(Live());
+            StartCoroutine(Live());
+        }
     }
 }

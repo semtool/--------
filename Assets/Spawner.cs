@@ -1,26 +1,28 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
+[RequireComponent(typeof(Renderer))]
+[RequireComponent(typeof(Cube))]
+
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private GameObject _cubeObject;
+    [SerializeField] private Cube _cubeObject;
     [SerializeField] private int _capacity;
     [SerializeField] private int _maxSize;
 
-    private ObjectPool<GameObject> _objectPool;
+    private ObjectPool<Cube> _objectPool;
     private Cube _cube;
     private Renderer _color;
-
-    public ObjectPool<GameObject> ObjectPool => _objectPool;
-
+    private float _startTimeOfInstantiation = 0;
+    private float _repeatRate = 1f;
+   
     private void Awake()
     {
-        _cube = _cubeObject.GetComponent<Cube>();
-        _objectPool = new ObjectPool<GameObject>(
-        createFunc: () => Instantiate(_cubeObject),
-        actionOnGet: (cubeObject) => PrepareObjectToInstantiation(cubeObject),
-        actionOnRelease: (cubeObject) => DeactivateObject(cubeObject),
-        actionOnDestroy: (cubeObject) => Destroy(cubeObject),
+        _objectPool = new ObjectPool<Cube>(
+        createFunc: () => GetCube(),
+        actionOnGet: (obj) => PrepareObjectToInstantiation(obj),
+        actionOnRelease: (obj) => DeactivateObject(obj),
+        actionOnDestroy: (obj) => Destroy(obj),
         collectionCheck: true,
         defaultCapacity: _capacity,
         maxSize: _maxSize);
@@ -28,14 +30,20 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating(nameof(Getcube), 0, 1);
+        InvokeRepeating(nameof(Getcube), _startTimeOfInstantiation, _repeatRate);
     }
 
-    private void PrepareObjectToInstantiation(GameObject obj)
+    private Cube GetCube()
     {
-        obj.transform.position = _cube.GetCoordinateOfAppearance();
+        return Instantiate(_cubeObject);
+    }
+
+    private void PrepareObjectToInstantiation(Cube obj)
+    {
+        obj.transform.position = _cubeObject.GetCoordinateOfAppearance();
         obj.GetComponent<Renderer>().material.color= Color.red;
-        obj.SetActive(true);
+        obj.gameObject.SetActive(true);
+        obj.LifeIsFinished += PutToPool;
     }
 
     private void Getcube()
@@ -43,8 +51,14 @@ public class Spawner : MonoBehaviour
         _objectPool.Get();
     }
 
-    private void DeactivateObject(GameObject obj)
-    {     
-        obj.SetActive(false);
+    private void DeactivateObject(Cube obj)
+    {
+        obj.LifeIsFinished -= PutToPool;
+        obj.gameObject.SetActive(false);
+    }
+
+    private void PutToPool(Cube obj)
+    {
+        _objectPool.Release(obj);
     }
 }
