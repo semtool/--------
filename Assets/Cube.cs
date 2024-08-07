@@ -7,7 +7,7 @@ using System;
 public class Cube : MonoBehaviour
 {
     private static float _minCoordinateOfPosition = -5f;
-    private static float _maxCoordinateOfPosition = -5f;
+    private static float _maxCoordinateOfPosition = 5f;
     private static float _maxTopCoordinateOfPosition = 15;
 
     private Renderer _color;
