@@ -18,7 +18,26 @@ public class Cube : MonoBehaviour
 
     public void Awake()
     {
-        _color = gameObject.GetComponent<Renderer>();
+        _color = GetComponent<Renderer>();
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.TryGetComponent(out Platform platform))
+        {
+            ChangeSelfColor();
+
+            StartCoroutine(Live());
+        }
+    }
+
+    private IEnumerator Live()
+    {
+        var wait = new WaitForSeconds(GetRandomTimeOfLife());
+
+        yield return wait;
+
+        LifeIsFinished?.Invoke(this);
     }
 
     public Vector3 GetCoordinateOfAppearance()
@@ -36,29 +55,8 @@ public class Cube : MonoBehaviour
         return UnityEngine.Random.Range(_minCoordinateOfPosition, _maxCoordinateOfPosition);
     }
 
-    private IEnumerator Live()
-    {
-        var wait = new WaitForSeconds(GetRandomTimeOfLife());
-
-        yield return wait;
-
-        LifeIsFinished?.Invoke(this);
-    }
-
     private float GetRandomTimeOfLife()
     {
         return UnityEngine.Random.Range(_minTimeOfLife, _maxTimeOfLife);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-       var cube = collision.gameObject.GetComponent<Cube>();
-
-        if (cube == null)
-        {
-            ChangeSelfColor();
-
-            StartCoroutine(Live());
-        }
     }
 }
