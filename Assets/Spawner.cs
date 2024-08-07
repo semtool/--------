@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-[RequireComponent(typeof(Renderer))]
+[RequireComponent(typeof(ObjectPool<>))]
 [RequireComponent(typeof(Cube))]
+[RequireComponent(typeof(Renderer))]
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private Cube _cubeObject;
+    [SerializeField] private Cube _prefabObject;
     [SerializeField] private int _capacity;
     [SerializeField] private int _maxSize;
 
@@ -19,7 +20,7 @@ public class Spawner : MonoBehaviour
     private void Awake()
     {
         _objectPool = new ObjectPool<Cube>(
-        createFunc: () => GetCube(),
+        createFunc: () => Instantiate(_prefabObject),
         actionOnGet: (obj) => PrepareObjectToInstantiation(obj),
         actionOnRelease: (obj) => DeactivateObject(obj),
         actionOnDestroy: (obj) => Destroy(obj),
@@ -30,23 +31,18 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating(nameof(Getcube), _startTimeOfInstantiation, _repeatRate);
-    }
-
-    private Cube GetCube()
-    {
-        return Instantiate(_cubeObject);
+        InvokeRepeating(nameof(SpawnCube), _startTimeOfInstantiation, _repeatRate);
     }
 
     private void PrepareObjectToInstantiation(Cube obj)
     {
-        obj.transform.position = _cubeObject.GetCoordinateOfAppearance();
+        obj.transform.position = _prefabObject.GetCoordinateOfAppearance();
         obj.GetComponent<Renderer>().material.color= Color.red;
         obj.gameObject.SetActive(true);
         obj.LifeIsFinished += PutToPool;
     }
 
-    private void Getcube()
+    private void SpawnCube()
     {
         _objectPool.Get();
     }

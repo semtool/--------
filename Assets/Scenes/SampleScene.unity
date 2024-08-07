@@ -655,7 +655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf4238e36be9b1449ee4558a6438093, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cubeObject: {fileID: 4277449858297552390, guid: 48d4f44122eda0a40bc6e3ba33d3df64, type: 3}
+  _prefabObject: {fileID: 4277449858297552390, guid: 48d4f44122eda0a40bc6e3ba33d3df64, type: 3}
   _capacity: 0
   _maxSize: 2
 --- !u!4 &1738528337
