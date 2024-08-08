@@ -16,6 +16,8 @@ public class Cube : MonoBehaviour
 
     public event Action<Cube> LifeIsFinished;
 
+    public float MaxTopCoordinateOfPosition => _maxTopCoordinateOfPosition;
+
     public void Awake()
     {
         _color = GetComponent<Renderer>();
@@ -50,11 +52,6 @@ public class Cube : MonoBehaviour
         _color.material.color = Color.green;
     }
 
-    private float GetRandomOffset()
-    {
-        return UnityEngine.Random.Range(_minOffsetOfPosition, _maxOffsetOfPosition);
-    }
-
     private float GetRandomTimeOfLife()
     {
         return UnityEngine.Random.Range(_minTimeOfLife, _maxTimeOfLife);
@@ -65,21 +62,14 @@ public class Cube : MonoBehaviour
         return UnityEngine.Random.Range(0, 1f);
     }
 
-    private Vector3 GetCoordinateOfAppearance(MainPlatform mainPlatform)
-    {
-        return transform.position = new Vector3(mainPlatform.transform.position.x + GetRandomOffset(), mainPlatform.transform.position.y + _maxTopCoordinateOfPosition, mainPlatform.transform.position.z + GetRandomOffset());
-    }
-
-    public void SetCoordinateOfAppearance()
-    {
-        MainPlatform mainPlatform = FindObjectOfType<MainPlatform>();
-
-        GetCoordinateOfAppearance(mainPlatform);
-    }
-
     public void SetSelfStartColor()
     {
         _color.material.color = Color.red;
         _isChanged = false;
+    }
+
+    public float GetRandomOffset()
+    {
+        return UnityEngine.Random.Range(_minOffsetOfPosition, _maxOffsetOfPosition);
     }
 }

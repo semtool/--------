@@ -11,6 +11,7 @@ public class Spawner : MonoBehaviour
     [SerializeField] private Cube _prefabObject;
     [SerializeField] private int _capacity;
     [SerializeField] private int _maxSize;
+    [SerializeField] private MainPlatform _mainPlatform;
 
     private ObjectPool<Cube> _objectPool;
     private float _repeatRate = 1f;
@@ -47,10 +48,18 @@ public class Spawner : MonoBehaviour
 
     private void PrepareObjectToInstantiation(Cube cube)
     {
-        cube.SetCoordinateOfAppearance();
+        SetCoordinateOfAppearance(cube);
         cube.SetSelfStartColor();
         cube.gameObject.SetActive(true);
         cube.LifeIsFinished += PutToPool;
+    }
+
+    private void SetCoordinateOfAppearance(Cube cube)
+    {
+        cube.transform.position = new Vector3(_mainPlatform.transform.position.x + 
+            cube.GetRandomOffset(), _mainPlatform.transform.position.y +
+            cube.MaxTopCoordinateOfPosition, _mainPlatform.transform.position.z + 
+            cube.GetRandomOffset());
     }
 
     private void SpawnCube()
