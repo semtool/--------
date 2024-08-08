@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -12,11 +13,9 @@ public class Spawner : MonoBehaviour
     [SerializeField] private int _maxSize;
 
     private ObjectPool<Cube> _objectPool;
-    private Cube _cube;
-    private Renderer _color;
-    private float _startTimeOfInstantiation = 0;
     private float _repeatRate = 1f;
-   
+    private bool _isSpawn = true;
+
     private void Awake()
     {
         _objectPool = new ObjectPool<Cube>(
@@ -31,15 +30,27 @@ public class Spawner : MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating(nameof(SpawnCube), _startTimeOfInstantiation, _repeatRate);
+        StartCoroutine(Spawn());
     }
 
-    private void PrepareObjectToInstantiation(Cube obj)
+    private IEnumerator Spawn()
     {
-        obj.transform.position = _prefabObject.GetCoordinateOfAppearance();
-        obj.GetComponent<Renderer>().material.color= Color.red;
-        obj.gameObject.SetActive(true);
-        obj.LifeIsFinished += PutToPool;
+        while (_isSpawn)
+        {
+            SpawnCube();
+
+            var wait = new WaitForSeconds(_repeatRate);
+
+            yield return wait;
+        }
+    }
+
+    private void PrepareObjectToInstantiation(Cube cube)
+    {
+        cube.SetCoordinateOfAppearance();
+        cube.SetSelfStartColor();
+        cube.gameObject.SetActive(true);
+        cube.LifeIsFinished += PutToPool;
     }
 
     private void SpawnCube()
@@ -47,10 +58,10 @@ public class Spawner : MonoBehaviour
         _objectPool.Get();
     }
 
-    private void DeactivateObject(Cube obj)
+    private void DeactivateObject(Cube cube)
     {
-        obj.LifeIsFinished -= PutToPool;
-        obj.gameObject.SetActive(false);
+        cube.LifeIsFinished -= PutToPool;
+        cube.gameObject.SetActive(false);
     }
 
     private void PutToPool(Cube obj)
